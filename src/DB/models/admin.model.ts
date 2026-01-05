@@ -8,7 +8,7 @@ export class Admin {
   @Prop({ type: String, required: true })
   password: string;
 
-  @Prop({ type: String, required: true, default: 'admin', enum: ['admin'] })
+  @Prop({ type: String, required: true, default: 'admin', enum: ['admin', 'king'] })
   role: string;
 }
 

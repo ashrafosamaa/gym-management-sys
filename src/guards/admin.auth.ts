@@ -19,7 +19,7 @@ export class AuthAdminGuard implements CanActivate {
         if (!accesstoken) {
             throw new BadRequestException('Pleaee lognIn first')
         }
-        const decodedData = this.jwtService.verify(accesstoken, { secret: process.env.JWT_SECRET })
+        const decodedData = this.jwtService.verify(accesstoken, { secret: process.env.JWT_SECRET_LOGIN })
         if (!decodedData.id) {
             throw new BadRequestException('Invalid token payload')
         }
