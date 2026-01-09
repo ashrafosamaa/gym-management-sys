@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AdminController } from 'src/admin/admin.controller';
-import { AdminService } from 'src/admin/admin.service';
-import { models } from 'src/DB/model-generation';
+import { AdminController } from '../admin/admin.controller';
+import { AdminService } from '../admin/admin.service';
+import { models } from '../DB/model-generation';
 
 
 @Module({

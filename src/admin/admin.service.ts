@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Admin } from 'src/DB/models/admin.model';
+import { Admin } from '../DB/models/admin.model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
 

@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Patch, Post, Param, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { Request, Response } from 'express';
-import { ZodValidationPipe } from 'src/pipes/validation.pipe';
+import { ZodValidationPipe } from '../pipes/validation.pipe';
 import { createAdminSchema, IDSchema, loginAdminSchema, updateMyPasswordSchema } from './admin.zod-schema';
-import { AuthAdminGuard } from 'src/guards';
+import { AuthAdminGuard } from '../guards';
 
 
 @Controller('admin')

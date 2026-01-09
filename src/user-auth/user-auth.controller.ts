@@ -1,7 +1,7 @@
 import { Body, Controller, Patch, Post, Res, UsePipes } from '@nestjs/common';
 import { UserAuthService } from './user-auth.service';
 import { Response } from 'express';
-import { ZodValidationPipe } from 'src/pipes/validation.pipe';
+import { ZodValidationPipe } from '../pipes/validation.pipe';
 import { UserAuthZodSchema } from './user-auth.zod-schema';
 
 

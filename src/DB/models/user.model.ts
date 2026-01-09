@@ -33,10 +33,13 @@ export class User {
 
   // profile image
 
-  profileImg: {
-        url: string;
-        publicId: string;
-  };
+    @Prop({ type:
+            {secure_url: { type: String },
+            public_id: { type: String }},})
+    profileImg: {
+        secure_url: string;
+        public_id: string;
+    };
 
   @Prop({ type : String })
   folderId : string

@@ -1,9 +1,9 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/DB/models/user.model';
+import { User } from '../DB/models/user.model';
 import { JwtService } from '@nestjs/jwt';
-import { SendEmailService } from 'src/common/send-email.service';
+import { SendEmailService } from '../common/send-email.service';
 import * as bcrypt from 'bcrypt'
 
 
