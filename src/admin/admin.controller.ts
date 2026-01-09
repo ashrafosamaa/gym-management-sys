@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Param, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { Request, Response } from 'express';
 import { ZodValidationPipe } from 'src/pipes/validation.pipe';
@@ -42,12 +42,11 @@ export class AdminController {
     }
 
     @Get('byId/:adminId')
-    @UsePipes(new ZodValidationPipe(IDSchema))
     async getAdmin(
-        @Param() params: any,
+        @Req() req: Request,
         @Res() res: Response
     ) {
-        const admin = await this.adminService.getAdmin(params)
+        const admin = await this.adminService.getAdmin(req)
         res.status(200).json({
             message: 'Admin account fetched successfully',
             statusCode: 200,
@@ -83,13 +82,15 @@ export class AdminController {
         })
     }
 
-    @Delete()
+    @Delete('/:adminId')
+    @UsePipes(new ZodValidationPipe(IDSchema))
     @UseGuards(AuthAdminGuard)
-    async deleteMyAccount(
+    async deleteAdmin(
         @Req() req: Request,
+        @Param() param: any,
         @Res() res: Response
     ) {
-        await this.adminService.deleteMyAccount(req)
+        await this.adminService.deleteAdmin(req, param)
         res.status(200).json({
             message: 'Your account deleted successfully',
             statusCode: 200
