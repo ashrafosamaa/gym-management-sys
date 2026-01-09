@@ -35,29 +35,31 @@ export class AdminController {
     ) {
         const token = await this.adminService.login(body)
         res.status(200).json({
-            message: 'Admin logged in successfully',
+            message: 'Logged in successfully',
             statusCode: 200,
             token
         })
     }
 
-    @Get('byId/:adminId')
+    @Get('me')
+    @UseGuards(AuthAdminGuard)
     async getAdmin(
         @Req() req: Request,
         @Res() res: Response
     ) {
         const admin = await this.adminService.getAdmin(req)
         res.status(200).json({
-            message: 'Admin account fetched successfully',
+            message: 'Account fetched successfully',
             statusCode: 200,
             admin
         })
     }
 
     @Get()
+    @UseGuards(AuthAdminGuard)
     async getAllAdmins(
         @Req() req: Request,
-        @Res() res: Response
+        @Res() res: Response,
     ) {
         const admins = await this.adminService.getAllAdmins(req)
         res.status(200).json({
@@ -77,7 +79,7 @@ export class AdminController {
     ) {
         await this.adminService.updateMyPassword(body, req)
         res.status(200).json({
-            message: 'Your password updated successfully',
+            message: 'Password updated successfully',
             statusCode: 200,
         })
     }
@@ -92,7 +94,7 @@ export class AdminController {
     ) {
         await this.adminService.deleteAdmin(req, param)
         res.status(200).json({
-            message: 'Your account deleted successfully',
+            message: 'Admin account deleted successfully',
             statusCode: 200
         })
     }

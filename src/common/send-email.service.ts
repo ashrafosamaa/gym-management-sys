@@ -28,7 +28,7 @@ export class SendEmailService {
         })
 
         const emailInfo = await transporter.sendMail({
-            from: '"no-reply"',
+            from: '"FROMA-GYM"',
             to: to ? to : '',
             subject: subject ? subject : 'Hello',
             html: message ? message : '',

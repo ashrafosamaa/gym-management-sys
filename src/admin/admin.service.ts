@@ -60,7 +60,7 @@ export class AdminService {
     async deleteAdmin(req: any, param: any) {
         if(req.authAdmin.role != 'king') throw new UnauthorizedException('Unauthorized, You are not the king admin')
         const admin = await this.adminModel.findById(param.adminId)
-        if(!admin) throw new NotFoundException('Admin not found')
+        if(!admin || admin.role == 'king') throw new NotFoundException('Admin not found')
         await admin.deleteOne()
         return true
     }
