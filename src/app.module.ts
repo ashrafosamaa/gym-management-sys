@@ -3,13 +3,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AdminModule, BranchModule, UserAuthModule, UserModule } from './modules';
+import { AdminModule, BranchModule, MembershipModule, UserAuthModule, UserModule } from './modules';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.CONNECTION_URL_HOST),
-    AdminModule, UserAuthModule, UserModule, BranchModule
+    AdminModule, UserAuthModule, UserModule, BranchModule,
+    MembershipModule
   ],
   controllers: [AppController],
   providers: [AppService],

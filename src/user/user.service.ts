@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../DB/models/user.model';
+import { Membership } from '../DB/models/membership.model';
 import { APIFeatures } from '../utils/api-feature';
 import { JwtService } from '@nestjs/jwt';
 import { cloudinaryConn } from '../utils/cloudinary-connection';
@@ -12,6 +13,7 @@ import * as bcrypt from 'bcrypt'
 export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(Membership.name) private membershipModel: Model<Membership>,
         private jwtService: JwtService
     ) {}
 
@@ -62,7 +64,7 @@ export class UserService {
     }
 
     async deleteUserAcc(params: any) {
-        const user = await this.userModel.findByIdAndDelete(params.userId)
+        const user = await this.userModel.findById(params.userId)
         if(!user) throw new NotFoundException('User not found')
         // delete photo
         if(user.profileImg.public_id){
@@ -70,6 +72,8 @@ export class UserService {
         await cloudinaryConn().api.delete_resources_by_prefix(folder)
         await cloudinaryConn().api.delete_folder(folder)
         }
+        await this.membershipModel.deleteMany({ userId: user._id })
+        await user.deleteOne()
         return true
     }
 
@@ -115,6 +119,7 @@ export class UserService {
         await cloudinaryConn().api.delete_resources_by_prefix(folder)
         await cloudinaryConn().api.delete_folder(folder)
         }
+        await this.membershipModel.deleteMany({ userId: req.authUser.id })
         await user.deleteOne()
         return true
     }
