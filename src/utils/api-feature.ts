@@ -37,4 +37,15 @@ export class APIFeatures {
         return this
     }
 
+    // Search on trainers by userName, specialization, phoneNumber
+    searchTrainers(search: any) {
+        const queryFiler: any = {}
+        if (search.userName) queryFiler.userName = { $regex: search.userName, $options: 'i' }
+        if (search.specialization) queryFiler.specialization = { $regex: search.specialization, $options: 'i' }
+        if (search.phoneNumber) queryFiler.phoneNumber = { $regex: search.phoneNumber, $options: 'i' }
+        if (search.experience) queryFiler.experience = { $regex: search.experience, $options: 'i' }
+        this.mongooseQuery = this.mongooseQuery.find(queryFiler)
+        return this
+    }
+
 }
