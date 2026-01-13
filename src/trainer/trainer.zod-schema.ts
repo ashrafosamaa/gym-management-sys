@@ -127,7 +127,7 @@ export class UserZodSchema {
         }
     })
 
-        static updateProfilePicSchema = z.object({
+    static updateProfilePicSchema = z.object({
         oldPublicId: z.string()
     }).strict().required()
 

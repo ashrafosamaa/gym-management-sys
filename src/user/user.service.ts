@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../DB/models/user.model';
 import { Membership } from '../DB/models/membership.model';
+import { Sub } from '../DB/models/subscription.model';
 import { APIFeatures } from '../utils/api-feature';
 import { JwtService } from '@nestjs/jwt';
 import { cloudinaryConn } from '../utils/cloudinary-connection';
@@ -14,6 +15,7 @@ export class UserService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Membership.name) private membershipModel: Model<Membership>,
+        @InjectModel(Sub.name) private subModel: Model<Sub>,
         private jwtService: JwtService
     ) {}
 
@@ -73,6 +75,7 @@ export class UserService {
         await cloudinaryConn().api.delete_folder(folder)
         }
         await this.membershipModel.deleteMany({ userId: user._id })
+        await this.subModel.deleteMany({ userId: user._id })
         await user.deleteOne()
         return true
     }
@@ -120,12 +123,14 @@ export class UserService {
         await cloudinaryConn().api.delete_folder(folder)
         }
         await this.membershipModel.deleteMany({ userId: req.authUser.id })
+        await this.subModel.deleteMany({ userId: user._id })
         await user.deleteOne()
         return true
     }
 
     async addProfilePicture (file:any, req: any) {
         const user = await this.userModel.findById(req.authUser.id)
+        if(user.folderId) throw new BadRequestException('You already have a profile picture, you can update it')
         if(!file) throw new BadRequestException('File picture not found')
         const folderId = Math.floor(1000 + Math.random() * 9000).toString()
         const {secure_url, public_id} = await cloudinaryConn().uploader.upload(file.path, {
@@ -140,6 +145,7 @@ export class UserService {
 
     async updateProfilePicture ( req: any, file:any, body: any) {
         const user = await this.userModel.findById(req.authUser.id)
+        if(!user.folderId) throw new BadRequestException('You do not have a profile picture, you can add one first')
         if(!file) throw new BadRequestException('File picture not found')
         if(user.profileImg.public_id != body.oldPublicId){
             throw new BadRequestException("You cannot update this profile's picture")

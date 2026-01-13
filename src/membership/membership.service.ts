@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
 import { Membership } from '../DB/models/membership.model';
 import { User } from '../DB/models/user.model';
@@ -14,7 +13,6 @@ export class MembershipService {
         @InjectModel(Membership.name) private membershipModel: Model<Membership>,
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Branch.name) private branchModel: Model<Branch>,
-        private jwtService: JwtService
     ) {}
 
     async addMembershipByAdmin(body: any) {
@@ -76,7 +74,7 @@ export class MembershipService {
     async updateMembershipByAdmin(body: any, params: any) {
         const membership = await this.membershipModel.findById(params.membershipId)
         if(!membership) throw new NotFoundException('Membership not found')
-        if(membership.isActive) throw new BadRequestException('Membership is active and cannot be updated')
+        if(membership.isActive || membership.isPaid) throw new BadRequestException('You can not update this membership now')
         // set price & time
         const finalDuration = body.duration ?? membership.duration
         const start = new Date(body.startDate ?? membership.startDate)
@@ -88,8 +86,8 @@ export class MembershipService {
         membership.price = price
         membership.startDate = start
         membership.endDate = endDate
-        if(body.isActive) membership.isActive = body.isActive
-        if(body.isPaid) membership.isPaid = body.isPaid
+        if(body.isActive !== undefined) membership.isActive = body.isActive
+        if(body.isPaid !== undefined) membership.isPaid = body.isPaid
         await membership.save()
         return true
     }
@@ -97,7 +95,7 @@ export class MembershipService {
     async deleteMembershipByAdmin(params: any) {
         const membership = await this.membershipModel.findById(params.membershipId)
         if(!membership) throw new NotFoundException('Membership not found')
-        if(membership.isActive || membership.isPaid) throw new BadRequestException('Membership is active and cannot be deleted')
+        if(membership.isActive || membership.isPaid) throw new BadRequestException('Membership cannot be deleted')
         await membership.deleteOne()
         return true
     }
@@ -140,7 +138,7 @@ export class MembershipService {
     async updateMyMembership(body: any, req: any, params: any) {
         const membership = await this.membershipModel.findOne({ _id: params.membershipId, userId: req.authUser.id })
         if(!membership) throw new NotFoundException('Membership not found')
-        if(membership.isActive) throw new BadRequestException('Membership is active and cannot be updated')
+        if(membership.isActive || membership.isPaid) throw new BadRequestException('You can not update this membership now')
         // set price & time
         const finalDuration = body.duration ?? membership.duration
         const start = new Date(body.startDate ?? membership.startDate)
@@ -159,10 +157,9 @@ export class MembershipService {
     async deleteMyMembership(req: any, params: any) {
         const membership = await this.membershipModel.findOne({ _id: params.membershipId, userId: req.authUser.id })
         if(!membership) throw new NotFoundException('Membership not found')
-        if(membership.isActive || membership.isPaid) throw new BadRequestException('Membership is active and cannot be deleted')
+        if(membership.isActive || membership.isPaid) throw new BadRequestException('Membership cannot be deleted')
         await membership.deleteOne()
         return true
     }
-
 
 }

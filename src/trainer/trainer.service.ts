@@ -7,6 +7,7 @@ import { APIFeatures } from '../utils/api-feature';
 import { JwtService } from '@nestjs/jwt';
 import { cloudinaryConn } from '../utils/cloudinary-connection';
 import * as bcrypt from 'bcrypt'
+import { Sub } from 'src/DB/models/subscription.model';
 
 
 @Injectable()
@@ -14,6 +15,7 @@ export class TrainerService {
     constructor(
         @InjectModel(Trainer.name) private trainerModel: Model<Trainer>,
         @InjectModel(Branch.name) private branchModel: Model<Branch>,
+        @InjectModel(Sub.name) private subModel: Model<Sub>,
         private jwtService: JwtService
     ) {}
 
@@ -35,8 +37,8 @@ export class TrainerService {
 
     async getAllTrainers(query: any) {
         const { page, size, sortBy } = query
-        const features = new APIFeatures(query, this.trainerModel.find({ isActive: true })
-            .select('userName gender specialization pricePerMonth experience isActive isFirstTime')
+        const features = new APIFeatures(query, this.trainerModel.find()
+            .select('userName gender specialization pricePerMonth experience isActive rate')
             .populate('branchId', 'name'))
             .pagination({ page, size })
             .sort(sortBy)
@@ -47,7 +49,7 @@ export class TrainerService {
 
     async getTrainersByBranchId(params: any) {
         const trainers = await this.trainerModel.find({ branchId: params.branchId, isActive: true })
-            .select('userName gender specialization pricePerMonth experience isActive isFirstTime')
+            .select('userName gender specialization pricePerMonth experience isActive rate')
             .populate('branchId', 'name')
         if(!trainers.length) throw new NotFoundException('No trainers found in this branch')
         return trainers
@@ -55,7 +57,7 @@ export class TrainerService {
 
     async getTrainer(params: any) {
         const trainer = await this.trainerModel.findOne({ _id: params.trainerId, isActive: true })
-            .select("-__v -password -role -folderId -profileImg.public_id -createdAt -updatedAt -passwordOneUse")
+            .select("-__v -password -role -folderId -profileImg.public_id -createdAt -updatedAt -passwordOneUse -isFirstTime -passwordChnageReq")
             .populate('branchId', 'name')
         if(!trainer) throw new NotFoundException('Trainer not found')
         return trainer
@@ -64,7 +66,7 @@ export class TrainerService {
     async searchTrainers(query: any) {
         const { ...search } = query
         const features = new APIFeatures(query, this.trainerModel.find()
-            .select("userName gender specialization pricePerMonth experience isActive isFirstTime")
+            .select('userName gender specialization pricePerMonth experience isActive rate')
             .populate('branchId', 'name'))
             .searchTrainers(search)
         const trainers = await features.mongooseQuery
@@ -95,7 +97,7 @@ export class TrainerService {
         if(body.pricePerMonth) trainer.pricePerMonth = body.pricePerMonth
         if(body.specialization) trainer.specialization = body.specialization
         if(body.gender) trainer.gender = body.gender
-        if(body.isActive && !trainer.isFirstTime) trainer.isActive = body.isActive
+        if(body.isActive !== undefined && !trainer.isFirstTime) trainer.isActive = body.isActive
         await trainer.save()
         return true
     }
@@ -103,6 +105,8 @@ export class TrainerService {
     async deleteTrainerAcc(params: any) {
         const trainer = await this.trainerModel.findById(params.trainerId)
         if(!trainer) throw new NotFoundException('Trainer not found')
+        const subs = await this.subModel.find({ trainerId: params.trainerId, isActive: true })
+        if(subs.length != 0) throw new BadRequestException('There are active subscriptions, can not delete this account')
         // delete photo
         if(trainer.folderId){
         const folder = `${process.env.MAIN_FOLDER}/Trainers/${trainer.folderId}`
@@ -143,7 +147,7 @@ export class TrainerService {
 
     async getMyAcc(req: any) {
         const trainer = await this.trainerModel.findById(req.authTrainer.id)
-            .select("-__v -password -role -folderId -profileImg.public_id -createdAt -updatedAt -passwordOneUse")
+            .select("-__v -password -role -folderId -profileImg.public_id -createdAt -updatedAt -passwordOneUse -isFirstTime -passwordChnageReq")
             .populate('branchId', 'name')
         return trainer
     }
@@ -165,7 +169,7 @@ export class TrainerService {
         if(body.pricePerMonth) trainer.pricePerMonth = body.pricePerMonth
         if(body.specialization) trainer.specialization = body.specialization
         if(body.gender) trainer.gender = body.gender
-        if(body.isActive) trainer.isActive = body.isActive
+        if(body.isActive !== undefined) trainer.isActive = body.isActive
         await trainer.save()
         return true
     }
@@ -183,13 +187,14 @@ export class TrainerService {
 
     async deleteMyAcc(req: any) {
         const trainer = await this.trainerModel.findById(req.authTrainer.id)
+        const subs = await this.subModel.find({ trainerId: req.authTrainer.id, isActive: true })
+        if(subs.length != 0) throw new BadRequestException('You have active subscriptions, you can not delete your account')
         // delete photo
         if(trainer.profileImg.public_id){
         const folder = `${process.env.MAIN_FOLDER}/Trainers/${trainer.folderId}`
         await cloudinaryConn().api.delete_resources_by_prefix(folder)
         await cloudinaryConn().api.delete_folder(folder)
         }
-        // await this.membershipModel.deleteMany({ userId: req.authUser.id })
         await trainer.deleteOne()
         return true
     }
@@ -241,7 +246,7 @@ export class TrainerService {
 
     async getTrainersByPassReq() {
         const trainers = await this.trainerModel.find({ passwordChnageReq: true })
-            .select('userName gender specialization pricePerMonth experience isActive isFirstTime')
+            .select('userName gender specialization pricePerMonth experience isActive rate')
             .populate('branchId', 'name')
         if(!trainers.length) throw new NotFoundException('No trainers found')
         return trainers

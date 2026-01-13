@@ -180,7 +180,7 @@ export class MembershipController {
     @Delete('mine/byId/:membershipId')
     @UsePipes(new ZodValidationPipe(MembershipZodSchema.IDSchema))
     @UseGuards(AuthUserGuard)
-    async deleteMyAcc(
+    async deleteMyMembership(
         @Param() params: any,
         @Req() req: Request,
         @Res() res: Response

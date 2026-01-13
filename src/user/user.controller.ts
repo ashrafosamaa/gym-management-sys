@@ -10,7 +10,6 @@ import { AuthAdminGuard, AuthUserGuard, multerImages } from '../guards';
 import * as Multer from "multer";
 
 
-
 @Controller('user')
 export class UserController {
     constructor(

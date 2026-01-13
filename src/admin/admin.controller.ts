@@ -72,7 +72,7 @@ export class AdminController {
     @Patch()
     @UsePipes(new ZodValidationPipe(updateMyPasswordSchema))
     @UseGuards(AuthAdminGuard)
-    async updateMyAccount(
+    async updateMyPassword(
         @Req() req: Request,
         @Res() res: Response,
         @Body() body: any,

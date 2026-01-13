@@ -4,7 +4,7 @@ import { User, userSchema } from "./models/user.model";
 import { Branch, branchSchema } from "./models/branch.model";
 import { Membership, membershipSchema } from "./models/membership.model";
 import { Trainer, trainerSchema } from "./models/trainer.model";
-
+import { Sub, subSchema } from "./models/subscription.model";
 
 
 export const models = MongooseModule.forFeature([
@@ -13,4 +13,5 @@ export const models = MongooseModule.forFeature([
     {name : Branch.name , schema : branchSchema},
     {name : Membership.name , schema : membershipSchema},
     {name : Trainer.name , schema : trainerSchema},
+    {name : Sub.name , schema : subSchema},
 ])

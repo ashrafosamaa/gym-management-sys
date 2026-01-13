@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
-export class MembershipZodSchema {
+export class SubZodSchema {
 
-    static addMembershipByAdminSchema = z.object({
-        duration: z.number().int().refine((val) => [1, 3, 6, 12].includes(val),
-            { message: 'duration must be one of 1, 3, 6, 12' }),
+    static addSubByAdminSchema = z.object({
+        duration: z.number().int().refine((val) => [1, 2, 3].includes(val),
+            { message: 'duration must be one of 1, 2, 3' }),
         startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {message: 'startDate must be in YYYY-MM-DD format'})
             .refine((val) => new Date(val) >= new Date(),{ message: 'startDate cannot be before today' }),
         isPaid: z.boolean(),
-        branchId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
+        trainerId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
             .regex(/^[a-fA-F0-9]+$/, { message: 'ID must be a valid hexadecimal string' }),
         phoneNumber: z.string().length(11, { message: 'Phone must be exactly 11 digits' }),
     }).required().strict()
@@ -19,7 +19,7 @@ export class MembershipZodSchema {
     }).strict()
 
     static IDSchema = z.object({
-        membershipId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
+        subId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
             .regex(/^[a-fA-F0-9]+$/, { message: 'ID must be a valid hexadecimal string' })
     }).required().strict()
     static userIDSchema = z.object({
@@ -30,14 +30,18 @@ export class MembershipZodSchema {
         branchId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
             .regex(/^[a-fA-F0-9]+$/, { message: 'ID must be a valid hexadecimal string' })
     }).required().strict()
+    static trainerIDSchema = z.object({
+        trainerId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
+            .regex(/^[a-fA-F0-9]+$/, { message: 'ID must be a valid hexadecimal string' })
+    }).required().strict()
 
     static noSchema = z.object({
         zaza: z.string().optional()
     }).strict()
 
-    static updateMembershipByAdminSchema = z.object({
-        duration: z.number().int().refine((val) => [1, 3, 6, 12].includes(val),
-            { message: 'duration must be one of 1, 3, 6, 12' }).optional(),
+    static updateSubByAdminSchema = z.object({
+        duration: z.number().int().refine((val) => [1, 2, 3].includes(val),
+            { message: 'duration must be one of 1, 2, 3' }).optional(),
         startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {message: 'startDate must be in YYYY-MM-DD format'})
             .refine((val) => new Date(val) >= new Date(),{ message: 'startDate cannot be before today' }).optional(),
         isActive: z.boolean().optional(),
@@ -46,20 +50,26 @@ export class MembershipZodSchema {
 
     // user
 
-    static addMembershipSchema = z.object({
-        duration: z.number().int().refine((val) => [1, 3, 6, 12].includes(val),
-            { message: 'duration must be one of 1, 3, 6, 12' }),
+    static addSubSchema = z.object({
+        duration: z.number().int().refine((val) => [1, 2, 3].includes(val),
+            { message: 'duration must be one of 1, 2, 3' }),
         startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {message: 'startDate must be in YYYY-MM-DD format'})
             .refine((val) => new Date(val) >= new Date(),{ message: 'startDate cannot be before today' }),
-        branchId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
+        trainerId: z.string().length(24, { message: 'ID must be exactly 24 characters long' })
             .regex(/^[a-fA-F0-9]+$/, { message: 'ID must be a valid hexadecimal string' }),
     }).required().strict()
 
-    static updateMyMembershipSchema = z.object({
-        duration: z.number().int().refine((val) => [1, 3, 6, 12].includes(val),
-            { message: 'duration must be one of 1, 3, 6, 12' }).optional(),
+    static updateMySubSchema = z.object({
+        duration: z.number().int().refine((val) => [1, 2, 3].includes(val),
+            { message: 'duration must be one of 1, 2, 3' }).optional(),
         startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {message: 'startDate must be in YYYY-MM-DD format'})
             .refine((val) => new Date(val) >= new Date(),{ message: 'startDate cannot be before today' }).optional(),
     }).strict()
+
+    static addCommentAndRateSchema = z.object({
+        comment: z.string().min(3, { message: 'comment must be at least 3 character long' })
+                    .max(128, { message: 'comment must be at most 128 character long' }),
+        rate: z.number().int().min(1, { message: 'rate must be at least 1' }).max(5, { message: 'rate must be at most 5' }),
+    }).required().strict()
 
 }
